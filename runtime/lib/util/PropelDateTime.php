@@ -63,7 +63,9 @@ class PropelDateTime extends DateTime
                 $dateTimeObject = new $dateTimeClass('@' . $value, new DateTimeZone('UTC'));
                 // timezone must be explicitly specified and then changed
                 // because of a DateTime bug: http://bugs.php.net/bug.php?id=43003
-                $dateTimeObject->setTimeZone(new DateTimeZone(date_default_timezone_get()));
+                // In our system if the instance is created from a timestamp it is already in UTC
+                // setting its timezone to system timezone makes the value invalid
+                // $dateTimeObject->setTimeZone(new DateTimeZone(date_default_timezone_get()));
             } else {
                 if ($timeZone === null) {
                     // stupid DateTime constructor signature
