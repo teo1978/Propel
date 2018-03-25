@@ -85,6 +85,12 @@ class MysqlSchemaParser extends BaseSchemaParser
      */
     public function parse(Database $database, Task $task = null)
     {
+        /** @var \PropelSQLDiffTask $task */
+        $existingTables = array_map(function (Table $table)
+        {
+            return $table->getCommonName();
+        }, $task->getDataModels()[0]->getDatabase()->getTables());
+        
         $this->addVendorInfo = $this->getGeneratorConfig()->getBuildProperty('addVendorInfo');
 
         $stmt = $this->dbh->query("SHOW FULL TABLES");
@@ -99,6 +105,11 @@ class MysqlSchemaParser extends BaseSchemaParser
         while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
             $name = $row[0];
             $type = $row[1];
+
+            if (!in_array($name, $existingTables))
+            {
+                continue;
+            }
 
             if ($name == $this->getMigrationTable() || $type != "BASE TABLE") {
                 continue;
